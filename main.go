@@ -5,10 +5,69 @@ import (
 	"awesomeProject/MaxNoRepeatSubString"
 	"fmt"
 	"math"
+	"regexp"
+	"sort"
+	"strconv"
+	"sync"
 	"unicode"
 )
 
+func merge(nums [][]int) {
+	//
+	fmt.Println(nums)
+	ans := make([]int, 0)
+	for len(nums) > 1 {
+		//	按最后一位排序
+		sort.Slice(nums, func(i, j int) bool {
+			if len(nums[i]) == 0 {
+				return false
+			} else if len(nums[j]) == 0 {
+				return true
+			}
+			return nums[i][len(nums[i])-1] > nums[j][len(nums[j])-1]
+		})
+
+		for index := 0; index < len(nums); index++ {
+			if len(nums[index]) == 0 {
+				nums = nums[:index]
+				break
+			}
+			ans = append(ans, nums[index][len(nums[index])-1])
+			nums[index] = nums[index][:len(nums[index])-1]
+		}
+	}
+	// 最后一个
+	ans = append(ans, nums[0]...)
+	fmt.Println(ans)
+}
+
 func main() {
+
+	// 有n个不等长升须的数组，合并的降序的数组
+	input := make([][]int, 0)
+	input = [][]int{{1, 3, 5}, {2, 4}, {6}, {}}
+
+	// [1,3,5]
+	// [2,4]
+	// [6]
+	merge(input)
+	//a := "ALTER TABLE ap_user_title_%d ADD lock_status tinyint NOT NULL DEFAULT 0 COMMENT '锁定状态 1 锁定 0 未锁定';"
+	//for i:=0;i<=99;i++{
+	//	fmt.Println(fmt.Sprintf(a, i))
+	//}
+	//m := make(map[int]int, 10)
+	//for i := 1; i<= 10; i++ {
+	//	m[i] = i
+	//}
+	//
+	//for k, v := range(m) {
+	//	go func() {
+	//		fmt.Println("k ->", k, "v ->", v)
+	//	}()
+	//}
+	//removeDuplicates.IsIsomorphic("egg",  "ada")
+	fmt.Println(1 << 3)
+
 	// l1 := []int{1,0,0,0,0,0,0,0,0,0,0,0,9,9,9,9,9,9,9}
 	// l2 := []int{9,9,9,9}
 	//var a  *addTwoNumbers.ListNode
@@ -117,9 +176,82 @@ func main() {
 
 	//res := similarity([]int{1,2,3,4,5,6,7,8,9,10,11,23,33,44},[]int{1,2,3,4,5,6,7,9,8,10,11,23,33,44})
 	//fmt.Println(res)
-	a := []int{1, 2, 3}
+
 	// [)
-	fmt.Println(a[:1])
+
+}
+
+func reverseString(s string) string {
+	runes := []rune(s)
+	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
+		runes[i], runes[j] = runes[j], runes[i]
+	}
+	return string(runes)
+}
+
+func extractNumbers(s string) []int {
+	re := regexp.MustCompile(`\d+`)
+	matches := re.FindAllString(s, -1)
+	nums := make([]int, len(matches))
+
+	for i, match := range matches {
+		num, _ := strconv.Atoi(match)
+		nums[i] = num
+	}
+
+	return nums
+}
+
+func Helper() {
+
+	limit := make(chan struct{}, 30)
+
+	wg := sync.WaitGroup{}
+	for i := 0; i < 99; i++ {
+		limit <- struct{}{}
+		go func(i int) {
+			wg.Add(1)
+			defer wg.Done()
+
+			fmt.Println(i)
+			<-limit
+		}(i)
+	}
+}
+
+type TitleItem struct {
+	// ap_title字段
+	Id                int64  `json:"id"`
+	TitleId           int64  `json:"title_id"`
+	Level             int64  `json:"level"`
+	NormalTag         int64  `json:"normal_tag"`
+	SpecialTag        string `json:"special_tag"`
+	Name              string `json:"name"`
+	Url               string `json:"url"`
+	H5Url             string `json:"h5_url"`
+	MobilePicUrl      string `json:"mobile_pic_url"`
+	WebPicUrl         string `json:"web_pic_url"`
+	Source            string `json:"source"`
+	Description       string `json:"description"`
+	OldIdentification string `json:"old_identification"`
+	Status            int    `json:"status"`
+	HWidth            int64  `json:"h_width"`
+	HHeight           int64  `json:"h_height"`
+	XhWidth           int64  `json:"xh_width"`
+	XhHeight          int64  `json:"xh_height"`
+	XxhWidth          int64  `json:"xxh_width"`
+	XxhHeight         int64  `json:"xxh_height"`
+	Colorful          int64  `json:"colorful"`
+	Grade             int64  `json:"grade"`
+	Effective         int64  `json:"effective"`
+	// cid不是ap_title字段，根据头衔的子头衔等级设置的值
+	Cid int64 `json:"cid"`
+	// 子头衔，根据原始数据level等逻辑拼装而成，部分头衔才有子头衔
+	SubTitle []*TitleItem `json:"sub_title"`
+	// 同一个装扮，内部等级
+	TitleLevel int32 `json:"title_level"`
+	// 装扮获得时，是否主动提示用户配置, 默认不提示
+	IsNeedNotify int32 `json:"is_need_notify"`
 }
 
 type Conf struct {

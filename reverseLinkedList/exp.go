@@ -76,55 +76,24 @@ func Reverse(head *ListNode) *ListNode {
 //	return current
 //}
 
-func ReverseLinkListII(head *ListNode, left, right int) *ListNode {
-	// 反转中间连标
-	// 给一个left，right
-	// 1：判断边界条件
-	// 2：声明哨兵节点
-	// 3：遍历找到左节点 及右节点，保存对应的场景
-	// 4：切断，并执行反转，&& 拼接起来
-	if head == nil || head.Next == nil || left >= right {
-		return head
+func reverseBetween(head *ListNode, left int, right int) *ListNode {
+	dummyNode := &ListNode{Next: head}
+	p0 := dummyNode
+	for i := 0; i < left; i++ {
+		// 走left-1步
+		p0 = p0.Next
 	}
-	var dummyNode = &ListNode{
-		Val: -1,
-	}
-	dummyNode.Next = head // 声明哨兵节点
-	pre := dummyNode
-	// 寻找左节点
-	// dummy ->1->2
-	for i := 1; i < left; i++ {
-		pre = pre.Next
-	}
-
-	leftNode := pre.Next
-	rightNode := leftNode
-
-	// 寻找右节点
-	// 1-2-3-4-5
-	for i := 0; i < right-left; i++ {
-		rightNode = rightNode.Next
-	}
-
-	tail := rightNode.Next
-
-	// 切断
-	pre.Next = nil
-	rightNode.Next = nil
-
-	pre.Next = R(leftNode)
-	leftNode.Next = tail
-	return dummyNode.Next
-}
-
-func R(head *ListNode) *ListNode {
+	// p0是left的前一个，p0。next表示 反转连标的第一个节点
+	// 执行反转
 	var pre *ListNode
-	current := head
-	for current != nil {
-		next := current.Next
-		current.Next = pre
-		pre = current
-		current = next
+	cur := p0.Next // 指向反转连标的第一个节点
+	for i := 0; i < right-left+1; i++ {
+		next := cur.Next
+		cur.Next = pre
+		pre = cur
+		cur = next
 	}
-	return pre
+	p0.Next.Next = cur
+	p0.Next = pre
+	return dummyNode.Next
 }
